@@ -1,50 +1,65 @@
-# Welcome to your Expo app 👋
+# La Cuisine - Modern Restaurant Website
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, responsive restaurant website built with React Native and Expo. This application features a beautiful UI with smooth animations, multilingual support, and a comprehensive menu system.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 🎨 Modern and elegant design
+- 🌐 Responsive layout for all devices
+- 🌍 Bilingual support (English/French)
+- 📱 Smooth scrolling and animations
+- 🍽️ Interactive menu with categories
+- 📍 Location integration with Google Maps
+- ⏰ Opening hours display
+- 📱 Social media integration
+- 📞 Contact information
 
+## Getting Started
+
+1. Install dependencies:
    ```bash
    npm install
    ```
 
-2. Start the app
-
+2. Start the development server:
    ```bash
-    npx expo start
+   npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+3. Open the app in your preferred environment:
+   - iOS Simulator
+   - Android Emulator
+   - Web Browser
+   - Expo Go app on your physical device
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+RestaurantTemplateNew/
+├── app/                    # Main application screens
+├── components/            # Reusable UI components
+├── context/              # React Context providers
+├── translations/         # Language translation files
+├── assets/              # Images and other static assets
+└── utils/               # Helper functions and utilities
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Technologies Used
 
-## Learn more
+- React Native
+- Expo
+- React Navigation
+- Context API for state management
+- CSS-in-JS styling
 
-To learn more about developing your project with Expo, look at the following resources:
+## Contributing
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## Join the community
+## License
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+This project is licensed under the MIT License - see the LICENSE file for details.
