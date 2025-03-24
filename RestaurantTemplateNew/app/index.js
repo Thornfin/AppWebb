@@ -1,62 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Image, Platform, Animated } from 'react-native';
 import Navbar from '../components/Navbar';
+import { useLanguage } from '../context/LanguageContext';
 
-const MenuItem = ({ title, description, price, image, isFullMenu, style, index }) => (
-  <Animated.View style={[styles.menuItem, isFullMenu && styles.menuItemFull, style]}>
-    <Image source={{ uri: image }} style={[styles.menuItemImage, isFullMenu && styles.menuItemImageFull]} />
-    <View style={[styles.menuItemContent, isFullMenu && styles.menuItemContentFull]}>
+const MenuItem = ({ title, description, price, image }) => (
+  <View style={styles.menuItem}>
+    <Image source={{ uri: image }} style={styles.menuItemImage} />
+    <View style={styles.menuItemContent}>
       <Text style={styles.menuItemTitle}>{title}</Text>
       <Text style={styles.menuItemDescription}>{description}</Text>
-      {isFullMenu && <Text style={styles.menuItemPrice}>{price}</Text>}
+      <Text style={styles.menuItemPrice}>{price}</Text>
     </View>
-  </Animated.View>
+  </View>
 );
 
 export default function Home() {
-  const [isFullMenu, setIsFullMenu] = useState(false);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const translateY = useRef(new Animated.Value(0)).current;
+  const { t } = useLanguage();
   const menuSectionRef = useRef(null);
   const scrollViewRef = useRef(null);
-
-  const toggleMenu = () => {
-    setIsFullMenu(!isFullMenu);
-    if (!isFullMenu) {
-      // Animate to full menu
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 0.7,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    } else {
-      // Animate back to popular items and scroll to menu section
-      Animated.parallel([
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(translateY, {
-          toValue: 0,
-          duration: 500,
-          useNativeDriver: true,
-        }),
-      ]).start();
-      
-      // Scroll to menu section
-      menuSectionRef.current?.measure((x, y, width, height, pageX, pageY) => {
-        scrollViewRef.current?.scrollTo({ y: pageY, animated: true });
-      });
-    }
-  };
 
   const [menuItems] = useState([
     {
@@ -183,164 +144,171 @@ export default function Home() {
   ]);
 
   return (
-    <ScrollView 
-      ref={scrollViewRef}
-      style={styles.container} 
-      contentContainerStyle={styles.contentContainer}
-    >
+    <View style={styles.container}>
       <Navbar />
-      
-      {/* Hero Section */}
-      <View style={styles.heroSection}>
-        <Text style={styles.heroTitle}>Welcome to Our Restaurant</Text>
-        <Text style={styles.heroSubtitle}>Experience the finest dining in town</Text>
-        <TouchableOpacity style={styles.ctaButton}>
-          <Text style={styles.ctaButtonText}>View Menu</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Menu Section */}
-      <View ref={menuSectionRef} style={styles.menuSection}>
-        <Text style={[styles.sectionTitle, { color: '#000' }]}>Popular Items</Text>
-        <View style={styles.menuContainer}>
-          {!isFullMenu ? (
-            <ScrollView 
-              horizontal 
-              showsHorizontalScrollIndicator={true}
-              style={styles.menuScroll}
-              contentContainerStyle={styles.menuScrollContent}
-            >
-              {menuItems.slice(0, 10).map((item, index) => (
-                <MenuItem 
-                  key={index}
-                  {...item}
-                  isFullMenu={false}
-                  index={index}
-                />
-              ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.fullMenuGrid}>
-              {menuItems.map((item, index) => (
-                <MenuItem 
-                  key={index}
-                  {...item}
-                  isFullMenu={true}
-                  index={index}
-                  style={{
-                    transform: [
-                      { scale: scaleAnim },
-                      { translateY: translateY.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 50]
-                      })}
-                    ],
-                  }}
-                />
-              ))}
-            </View>
-          )}
-        </View>
-        <TouchableOpacity 
-          style={styles.viewMenuButton}
-          onPress={toggleMenu}
-        >
-          <Text style={styles.viewMenuButtonText}>
-            {isFullMenu ? 'Show Popular Items' : 'View Full Menu'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Culture Section */}
-      <View style={styles.cultureSection}>
-        <Text style={[styles.sectionTitle, { color: '#fff' }]}>Our Culture</Text>
-        <View style={styles.cultureGrid}>
-          <View style={styles.cultureItem}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4' }}
-              style={styles.cultureImage}
-            />
-            <Text style={styles.cultureTitle}>Traditional Values</Text>
-            <Text style={styles.cultureText}>We preserve authentic recipes passed down through generations.</Text>
-          </View>
-          <View style={styles.cultureItem}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1552566626-52f8b828add9' }}
-              style={styles.cultureImage}
-            />
-            <Text style={styles.cultureTitle}>Modern Innovation</Text>
-            <Text style={styles.cultureText}>Blending traditional flavors with contemporary techniques.</Text>
-          </View>
-          <View style={styles.cultureItem}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1559339352-11d035aa65de' }}
-              style={styles.cultureImage}
-            />
-            <Text style={styles.cultureTitle}>Community Focus</Text>
-            <Text style={styles.cultureText}>Supporting local farmers and sustainable practices.</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Location Section */}
-      <View style={styles.locationSection}>
-        <Text style={[styles.sectionTitle, { color: '#fff' }]}>Find Us</Text>
-        <View style={styles.mapContainer}>
-          <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509374!2d144.95373531531983!3d-37.81732767983171!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d4c2b349649%3A0xb6899234e561db11!2sRestaurant!5e0!3m2!1sen!2sus!4v1641234567890!5m2!1sen!2sus"
-            width="100%"
-            height="300"
-            style={{ border: 0, borderRadius: 15 }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.scrollView} 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Text style={styles.restaurantName}>{t('restaurantName')}</Text>
+          <Text style={styles.tagline}>{t('tagline')}</Text>
+          <Image 
+            source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4' }}
+            style={styles.restaurantLogo}
           />
         </View>
-        <Text style={styles.address}>123 Restaurant Street, City, Country</Text>
-      </View>
 
-      {/* Reviews Section */}
-      <View style={styles.reviewsSection}>
-        <Text style={[styles.sectionTitle, { color: '#000' }]}>What Our Customers Say</Text>
-        <View style={styles.reviewCard}>
-          <Text style={styles.reviewText}>"Amazing food and great service! The atmosphere is perfect for a romantic dinner."</Text>
-          <Text style={styles.reviewAuthor}>- John Doe</Text>
-          <Text style={styles.reviewRating}>★★★★★</Text>
-        </View>
-        <View style={styles.reviewCard}>
-          <Text style={styles.reviewText}>"A must-visit place for food lovers. The chef's special is always a treat!"</Text>
-          <Text style={styles.reviewAuthor}>- Jane Smith</Text>
-          <Text style={styles.reviewRating}>★★★★★</Text>
-        </View>
-      </View>
-
-      {/* Hours Section */}
-      <View style={styles.hoursSection}>
-        <Text style={[styles.sectionTitle, { color: '#000' }]}>Opening Hours</Text>
-        <Text style={styles.hoursText}>Monday - Friday: 11:00 AM - 10:00 PM</Text>
-        <Text style={styles.hoursText}>Saturday - Sunday: 10:00 AM - 11:00 PM</Text>
-      </View>
-
-      {/* Footer with Social Links */}
-      <View style={styles.footer}>
-        <Text style={styles.footerTitle}>Connect With Us</Text>
-        <View style={styles.socialLinks}>
-          <TouchableOpacity 
-            style={styles.socialButton}
-            onPress={() => Linking.openURL('https://facebook.com')}
+        {/* Menu Section */}
+        <View ref={menuSectionRef} style={styles.menuSection}>
+          <Text style={[styles.sectionTitle, { color: '#000' }]}>{t('ourMenu')}</Text>
+          <ScrollView 
+            horizontal 
+            showsHorizontalScrollIndicator={true}
+            style={styles.menuScroll}
+            contentContainerStyle={styles.menuScrollContent}
+            scrollEventThrottle={16}
           >
-            <Text style={styles.socialButtonText}>Facebook</Text>
-          </TouchableOpacity>
+            {menuItems.map((item, index) => (
+              <MenuItem 
+                key={index}
+                {...item}
+              />
+            ))}
+          </ScrollView>
           <TouchableOpacity 
-            style={styles.socialButton}
-            onPress={() => Linking.openURL('https://instagram.com')}
+            style={styles.viewFullMenuButton}
+            onPress={() => router.push('/menu')}
           >
-            <Text style={styles.socialButtonText}>Instagram</Text>
+            <Text style={styles.viewFullMenuText}>{t('viewFullMenu')}</Text>
           </TouchableOpacity>
         </View>
-        <Text style={styles.copyright}>© 2024 Our Restaurant. All rights reserved.</Text>
-      </View>
-    </ScrollView>
+
+        {/* Culture Section */}
+        <View style={styles.cultureSection}>
+          <Text style={[styles.sectionTitle, { color: '#fff' }]}>{t('ourCulture')}</Text>
+          <View style={styles.cultureGrid}>
+            <View style={styles.cultureItem}>
+              <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4' }}
+                style={styles.cultureImage}
+              />
+              <Text style={styles.cultureTitle}>{t('traditionalValues')}</Text>
+              <Text style={styles.cultureText}>{t('traditionalValuesDesc')}</Text>
+            </View>
+            <View style={styles.cultureItem}>
+              <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1552566626-52f8b828add9' }}
+                style={styles.cultureImage}
+              />
+              <Text style={styles.cultureTitle}>{t('modernInnovation')}</Text>
+              <Text style={styles.cultureText}>{t('modernInnovationDesc')}</Text>
+            </View>
+            <View style={styles.cultureItem}>
+              <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1559339352-11d035aa65de' }}
+                style={styles.cultureImage}
+              />
+              <Text style={styles.cultureTitle}>{t('communityFocus')}</Text>
+              <Text style={styles.cultureText}>{t('communityFocusDesc')}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Location Section */}
+        <View style={styles.locationSection}>
+          <Text style={[styles.sectionTitle, { color: '#fff' }]}>{t('findUs')}</Text>
+          <View style={styles.mapContainer}>
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3151.835434509374!2d144.95373531531983!3d-37.81732767983171!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6ad65d4c2b349649%3A0xb6899234e561db11!2sRestaurant!5e0!3m2!1sen!2sus!4v1641234567890!5m2!1sen!2sus"
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: 15 }}
+              allowFullScreen=""
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </View>
+          <Text style={styles.address}>{t('address')}</Text>
+        </View>
+
+        {/* Reviews Section */}
+        <View style={styles.reviewsSection}>
+          <Text style={[styles.sectionTitle, { color: '#000' }]}>{t('customerReviews')}</Text>
+          <View style={styles.reviewCard}>
+            <Text style={styles.reviewText}>{t('review1')}</Text>
+            <Text style={styles.reviewAuthor}>- John Doe</Text>
+            <Text style={styles.reviewRating}>★★★★★</Text>
+          </View>
+          <View style={styles.reviewCard}>
+            <Text style={styles.reviewText}>{t('review2')}</Text>
+            <Text style={styles.reviewAuthor}>- Jane Smith</Text>
+            <Text style={styles.reviewRating}>★★★★★</Text>
+          </View>
+        </View>
+
+        {/* Opening Hours Section */}
+        <View style={styles.infoSection}>
+          <View style={styles.hoursContainer}>
+            <Text style={styles.hoursTitle}>{t('openingHours')}</Text>
+            <View style={styles.hoursRow}>
+              <Text style={styles.hoursLabel}>{t('mondayFriday')}</Text>
+              <Text style={styles.hoursText}>{t('hoursWeekday')}</Text>
+            </View>
+            <View style={styles.hoursRow}>
+              <Text style={styles.hoursLabel}>{t('saturday')}</Text>
+              <Text style={styles.hoursText}>{t('hoursSaturday')}</Text>
+            </View>
+            <View style={styles.hoursRow}>
+              <Text style={styles.hoursLabel}>{t('sunday')}</Text>
+              <Text style={styles.hoursText}>{t('hoursSunday')}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Footer with Social Links */}
+        <View style={styles.footer}>
+          <Text style={styles.footerTitle}>{t('connectWithUs')}</Text>
+          <View style={styles.socialLinks}>
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => Linking.openURL('https://facebook.com')}
+            >
+              <Text style={styles.socialIcon}>📘</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => Linking.openURL('https://instagram.com')}
+            >
+              <Text style={styles.socialIcon}>📸</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => Linking.openURL('https://tiktok.com')}
+            >
+              <Text style={styles.socialIcon}>🎵</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => Linking.openURL('https://x.com')}
+            >
+              <Text style={styles.socialIcon}>𝕏</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.contactInfo}>
+            <Text style={styles.contactTitle}>{t('getInTouch')}</Text>
+            <View style={styles.contactDetails}>
+              <Text style={styles.contactText}>{t('email')}</Text>
+              <Text style={styles.contactText}>{t('phone')}</Text>
+            </View>
+          </View>
+          <Text style={styles.copyright}>{t('copyright')}</Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -350,9 +318,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     width: '100%',
   },
-  contentContainer: {
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     flexGrow: 1,
-    width: '100%',
   },
   heroSection: {
     height: 500,
@@ -360,19 +330,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#000',
     padding: 20,
+    marginTop: 0, // Remove the margin to allow navbar overlay
   },
-  heroTitle: {
-    fontSize: 48,
+  restaurantName: {
+    fontSize: 72,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'serif',
   },
-  heroSubtitle: {
-    fontSize: 20,
+  tagline: {
+    fontSize: 24,
     color: '#fff',
     textAlign: 'center',
     marginBottom: 30,
+    fontStyle: 'italic',
+    opacity: 0.9,
+  },
+  restaurantLogo: {
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    borderWidth: 3,
+    borderColor: '#fff',
   },
   ctaButton: {
     backgroundColor: '#fff',
@@ -397,21 +378,19 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
   },
-  menuContainer: {
-    width: '100%',
-    overflow: 'hidden',
-  },
   menuScroll: {
     width: '100%',
+    overflow: 'auto',
   },
   menuScrollContent: {
     flexDirection: 'row',
     paddingHorizontal: 20,
     paddingVertical: 20,
     justifyContent: 'flex-start',
+    minWidth: 'min-content',
   },
   menuItem: {
-    width: 400,
+    width: 300,
     backgroundColor: '#fff',
     borderRadius: 15,
     marginRight: 20,
@@ -421,55 +400,37 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
     overflow: 'hidden',
-  },
-  menuItemFull: {
-    width: '19.9%',
-    marginBottom: 1,
-    marginHorizontal: '0.02%',
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    overflow: 'hidden',
+    flexShrink: 0,
   },
   menuItemImage: {
     width: '100%',
-    height: 250,
+    height: 200,
     resizeMode: 'cover',
   },
-  menuItemImageFull: {
-    height: 200,
-  },
   menuItemContent: {
-    padding: 20,
-  },
-  menuItemContentFull: {
     padding: 15,
   },
   menuItemTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginBottom: 6,
     color: '#000',
   },
   menuItemDescription: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    lineHeight: 22,
+    lineHeight: 20,
   },
   menuItemPrice: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
-    marginTop: 8,
+    marginTop: 6,
   },
   viewMenuButton: {
     backgroundColor: '#000',
-    paddingVertical: 12,
     paddingHorizontal: 30,
+    paddingVertical: 15,
     borderRadius: 25,
     marginTop: 20,
     alignSelf: 'center',
@@ -575,47 +536,97 @@ const styles = StyleSheet.create({
     color: '#FFD700',
     fontSize: 16,
   },
-  hoursSection: {
+  infoSection: {
     padding: 40,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     alignItems: 'center',
+    width: '100%',
   },
-  hoursText: {
-    fontSize: 16,
-    marginBottom: 5,
+  hoursContainer: {
+    backgroundColor: '#fff',
+    padding: 30,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    width: '100%',
+    maxWidth: 400,
+  },
+  hoursTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
     textAlign: 'center',
     color: '#000',
   },
+  hoursRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  hoursLabel: {
+    fontSize: 16,
+    color: '#666',
+  },
+  hoursText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000',
+  },
   footer: {
-    padding: 40,
     backgroundColor: '#000',
+    padding: 80,
     alignItems: 'center',
+    width: '100%',
   },
   footerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 20,
+    marginBottom: 30,
+    textAlign: 'center',
   },
   socialLinks: {
     flexDirection: 'row',
-    marginBottom: 20,
     justifyContent: 'center',
+    gap: 20,
+    marginBottom: 60,
   },
   socialButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginHorizontal: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    transition: 'all 0.3s ease',
   },
-  socialButtonText: {
-    fontSize: 16,
+  socialIcon: {
+    fontSize: 24,
+  },
+  contactInfo: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  contactTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    color: '#000',
+    color: '#fff',
+    marginBottom: 25,
+    textAlign: 'center',
+  },
+  contactDetails: {
+    alignItems: 'center',
+    gap: 20,
+  },
+  contactText: {
+    fontSize: 16,
+    color: '#fff',
   },
   copyright: {
-    color: '#fff',
+    color: 'rgba(255, 255, 255, 0.7)',
     fontSize: 14,
     textAlign: 'center',
   },
@@ -623,10 +634,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    padding: 10,
     width: '100%',
-    maxWidth: 3000,
+    maxWidth: 1200,
     gap: 0,
+  },
+  viewFullMenuButton: {
+    backgroundColor: '#000',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+    marginTop: 20,
+    alignSelf: 'center',
+  },
+  viewFullMenuText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 }); 
